@@ -39,6 +39,4 @@ Secrets: `REPORTS_DEPLOY_KEY` (국내 eod-report와 동일 deploy key)
 | `us-eod-report.yml` | 장 마감 후 (~17:05 ET) HTML 생성 + `docs/` push |
 | `us-alpaca-trade.yml` | close-15 슬롯 후에도 `--force`로 당일 갱신 |
 
-> **Private Free repo:** GitHub `schedule` cron이 안 돌 수 있음 → [`docs/EXTERNAL-CRON.md`](EXTERNAL-CRON.md) (cron-job.org → `workflow_dispatch`).
-
 Markdown 레거시: `logs/reports/report_YYYYMMDD.md` (`uv run python -m automation.report --live`)
