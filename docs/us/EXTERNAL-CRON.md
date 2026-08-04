@@ -23,9 +23,9 @@ Classic token 사용 시: `repo` + `workflow` scope.
 
 ## 2. cron-job.org 설정
 
-[https://console.cron-job.org](https://console.cron-job.org) 가입 후 **Create cronjob** × 2 (open / close).
+[https://console.cron-job.org](https://console.cron-job.org) 가입 후 **Create cronjob** × **3** (open / close / EOD).
 
-### 공통
+### 공통 (trade job — Job 1·2)
 
 | 필드 | 값 |
 |------|-----|
@@ -34,6 +34,7 @@ Classic token 사용 시: `repo` + `workflow` scope.
 | Headers | `Accept: application/vnd.github+json` |
 | | `Authorization: Bearer <YOUR_GITHUB_PAT>` |
 | | `X-GitHub-Api-Version: 2022-11-28` |
+| | `Content-Type: application/json` |
 | Body (JSON) | 슬롯별 아래 참고 |
 | Timezone | **UTC** |
 
@@ -102,13 +103,47 @@ gh run view <run-id> --repo Lee-kangil/us-swing-auto-trading --log | Select-Stri
 
 ---
 
-## 5. EOD 레포트
+## 5. Job 3 — EOD 레포트 → GitHub Pages (필수)
 
-`us-eod-report.yml`도 private Free에서 schedule이 막힐 수 있다. 동일 패턴으로:
+`us-eod-report.yml`이 **Alpaca live + HTML 생성 + `swing-trading-reports` push**까지 담당한다.  
+trade job의 `generate_report`는 GHA runner 내부만 갱신 — **Pages 반영은 EOD job**.
 
-- URL: `.../actions/workflows/us-eod-report.yml/dispatches`
-- Body: `{"ref":"main","inputs":{"force":"false"}}`
-- EDT cron: `5 22 * * 1-5` (~17:05 ET)
+### Job 3 설정 (ADVANCED 탭)
+
+| 필드 | 값 |
+|------|-----|
+| Title | `us-swing EOD report (EDT)` |
+| Request method | `POST` |
+| URL | `https://api.github.com/repos/Lee-kangil/us-swing-auto-trading/actions/workflows/us-eod-report.yml/dispatches` |
+| Schedule | `5 22 * * 1-5` (**22:05 UTC** = 17:05 ET) |
+| Timezone | **UTC** |
+| Headers | trade job과 동일 (+ `Content-Type: application/json`) |
+| Body | `{"ref":"main","inputs":{"force":"false"}}` |
+
+### KST (EDT)
+
+| | UTC | ET | KST |
+|--|-----|-----|-----|
+| EOD | **22:05** | **17:05** (장 마감+65분) | **다음날 07:05** |
+
+EST 전환 후: `5 23 * * 1-5` (23:05 UTC = 18:05 EST) → KST **08:05**
+
+### EOD Test run
+
+- HTTP **204** → GHA `US EOD Report` run 생성
+- Actions 로그: `Publish to swing-trading-reports` → `git push`
+- Pages: https://lee-kangil.github.io/swing-trading-reports/us/latest_day.html
+
+로컬 수동:
+
+```powershell
+$env:GITHUB_TOKEN = "github_pat_..."
+.\scripts\dispatch_eod_workflow.ps1 -Force
+```
+
+> **저널(당일 체결 내역)** 은 GHA runner에 없으면 「오늘 거래 0건」으로 나올 수 있다.  
+> 로컬 trade 후 full 저널 반영이 필요하면 `uv run python -m automation.generate_report --force` 후  
+> `swing-trading-reports`에 `docs/us/` HTML만 push (당일 수동 복구).
 
 ---
 
