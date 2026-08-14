@@ -44,7 +44,7 @@ Classic token 사용 시: `repo` + `workflow` scope.
 |------|-----|
 | Title | `us-swing open+5 (EDT)` |
 | Schedule | `35 13 * * 1-5` (13:35 UTC = 09:35 ET) |
-| Body | `{"ref":"main","inputs":{"slot":"open+5","strategy":"composite"}}` |
+| Body | `{"ref":"main","inputs":{"slot":"open+5","strategy":"split"}}` |
 
 ### Job 2 — close-15 (EDT)
 
@@ -52,7 +52,7 @@ Classic token 사용 시: `repo` + `workflow` scope.
 |------|-----|
 | Title | `us-swing close-15 (EDT)` |
 | Schedule | `45 19 * * 1-5` (19:45 UTC = 15:45 ET) |
-| Body | `{"ref":"main","inputs":{"slot":"close-15","strategy":"composite"}}` |
+| Body | `{"ref":"main","inputs":{"slot":"close-15","strategy":"split"}}` |
 
 ### EST 전환 (11월~3월)
 
@@ -81,7 +81,7 @@ gh workflow run "US Alpaca Paper Trade" `
   --repo Lee-kangil/us-swing-auto-trading `
   --ref main `
   -f slot=open+5 `
-  -f strategy=composite
+  -f strategy=split
 ```
 
 (`gh auth login` 필요 — cron-job.org에는 PAT + curl 방식 권장)

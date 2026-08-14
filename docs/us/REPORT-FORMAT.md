@@ -15,30 +15,76 @@
 생성:
 
 ```powershell
-uv run python -m automation.generate_report --force   # 로컬
-uv run python -m automation.report --html --force     # 동일
+uv run python -m automation.generate_report --force
+uv run python -m automation.report --html --force
 ```
 
-GitHub Pages: public 레포 `Lee-kangil/swing-trading-reports` → `docs/us/` (EOD workflow가 자동 push)
-
 Secrets: `REPORTS_DEPLOY_KEY` (국내 eod-report와 동일 deploy key)
+
+---
+
+## 계좌 요약 타일
+
+| 타일 | 의미 |
+|------|------|
+| **총자산** | Alpaca equity (부제: 현금 · 주식 평가) |
+| **보유 매수원가** | 전체 보유 종목 `평단×수량` 합 |
+| **보유 평가금액** | 전체 보유 `현재가×수량` 합 (부제: 평가손익) |
+| **누적손익** | 초기자본 대비 |
+| **당일 실현손익** | 당일 매도 FIFO 실현 |
+| **보유종목 평가손익** | 미실현 합 |
+
+---
+
+## 로직별 섹션 (split 3로직)
+
+표시: `ma_divergence`, `momentum_absolute`, `short_term_reversal`
+
+**숨김** (legacy/운영): `split`, `composite`, `correction`
+
+| 타일/항목 | 의미 |
+|-----------|------|
+| **매수 금액** | 해당 로직 보유 `평단×수량` 합 |
+| **투자 비중** | 매수금액 ÷ 총자산 (**한도 30%**) |
+| **보유 평가금액** | 현재가×수량 합 (부제: 평가손익) |
+| **실현/미실현/합계** | 로직별 손익 |
+| **보유 종목** | trade replay 기준 로직 귀속 |
+| **매매 내역** | 해당 logic_id 체결 |
+
+종목→로직: trade log replay → `position_book` → `logic_seed.json`
+
+---
 
 ## 분석용 매매일지 (별도)
 
 | 파일 | 용도 |
 |------|------|
-| `logs/journal/trades_journal.jsonl` | 체결 1건당 1행 (logic_id, notional 등) |
-| `logs/journal/daily_summary.jsonl` | 일별 계좌·손익 요약 (수익 분석용) |
+| `logs/journal/trades_journal.jsonl` | 체결 1건당 1행 |
+| `logs/journal/daily_summary.jsonl` | 일별 계좌·손익 |
 
-표시용 HTML과 분리되어 있어 pandas/Notebook으로 후속 분석 가능.
+---
 
 ## 자동 업데이트
 
 | 워크플로 | 시점 |
 |----------|------|
-| `us-eod-report.yml` | 장 마감 후 (~17:05 ET) HTML 생성 + `docs/` push |
-| `us-alpaca-trade.yml` | close-15 슬롯 후에도 `--force`로 당일 갱신 |
+| `us-eod-report.yml` | 장 마감 후 (~17:05 ET) HTML + Pages |
+| `us-alpaca-trade.yml` | open+5 / close-15 후 레포트 갱신 |
 
-> **Private Free repo:** GitHub `schedule` cron이 안 돌 수 있음 → [`docs/EXTERNAL-CRON.md`](EXTERNAL-CRON.md) (cron-job.org → `workflow_dispatch`).
+> Private Free repo: GitHub `schedule` 미동작 가능 → [`docs/EXTERNAL-CRON.md`](EXTERNAL-CRON.md) (`strategy: split`)
 
-Markdown 레거시: `logs/reports/report_YYYYMMDD.md` (`uv run python -m automation.report --live`)
+Markdown 레거시: `uv run python -m automation.report --live`
+
+---
+
+## 운영 한도 (Paper split)
+
+| env | 기본 |
+|-----|------|
+| `PER_LOGIC_DEPLOY_PCT` | 0.30 |
+| `PER_SYMBOL_SPLIT_PCT` | 0.06 |
+| `MAX_POSITIONS_PER_LOGIC` | 5 |
+| `MAX_DEPLOY_PCT` | 0.90 |
+| `CASH_RESERVE` | 0.10 |
+
+매수 직전 `logic_headroom`은 **trade replay + Alpaca 실포지션** 중 큰 값으로 deploy를 계산한다.
