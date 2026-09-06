@@ -38,7 +38,7 @@ Secrets: `REPORTS_DEPLOY_KEY` (국내 eod-report와 동일 deploy key)
 
 ## 로직별 섹션 (split 3로직)
 
-표시: `ma_divergence`, `momentum_absolute`, `short_term_reversal`
+표시: `macd_trend_confirm`, `momentum_absolute`, `short_term_reversal`
 
 **숨김** (legacy/운영): `split`, `composite`, `correction`
 

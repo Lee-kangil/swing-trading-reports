@@ -5,18 +5,26 @@
 
 ---
 
-## 30초 요약 (2026-08-14)
+## 30초 요약 (2026-09-06)
 
 | 항목 | 값 |
 |------|-----|
 | 모드 | Alpaca **Paper** |
-| 운영 | **3로직 split** — `ma_divergence` / `momentum_absolute` / `short_term_reversal` |
+| 운영 | **3로직 split** — `macd_trend_confirm` / `momentum_absolute` / `short_term_reversal` |
 | 슬롯 | `open+5`, `close-15` (ET) |
 | 한도 | 로직당 **30%**, 종목당 **6%**, 로직당 **5종**, 전체 **90%** |
 | cron | `strategy: **split**` (composite 폐기) |
 | 레포트 | https://lee-kangil.github.io/swing-trading-reports/us/latest_day.html |
 
 ---
+
+## 최근 완료 (09-06)
+
+- [x] **로직 교체**: `ma_divergence`(live 0건, 08-14부터 관찰) → `macd_trend_confirm`
+      — 2022(하락장) ROI +36.01%/승률 65.60%, 최근 1년(상승장) ROI +83.13%/승률 74.42%
+        GHA 실백테스트로 검증 후 `SPLIT_LOGIC_IDS` 교체 + `buy_signal_strength` 강도 함수 추가
+- [x] `composite_label()` fallback 문자열을 `SPLIT_LOGIC_IDS` 참조로 변경 (하드코딩 라벨 stale 방지)
+- [x] `docs/REPORT-FORMAT.md` 표시 로직명 갱신
 
 ## 최근 완료 (08-14)
 
@@ -34,7 +42,7 @@
 | # | 항목 | 조치 |
 |---|------|------|
 | 1 | **기존 초과 보유** (momentum ~37%, STR ~40%) | 신규 매수는 차단됨 → 시그널 매도 또는 수동 trim 관찰 |
-| 2 | **ma_divergence** live 0건 | 2~4주 관찰 후 교체 검토 |
+| 2 | **macd_trend_confirm** 교체 직후 (09-06) | live 0건 재발 여부 2~4주 관찰 |
 | 3 | **Live** | 미개설 — Paper N일 축적 후 |
 | 4 | DST cron | `docs/reminders/2026-10-29-dst-cron.md` (10/29 전) |
 
