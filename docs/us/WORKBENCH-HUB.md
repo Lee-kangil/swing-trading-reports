@@ -25,6 +25,13 @@
         GHA 실백테스트로 검증 후 `SPLIT_LOGIC_IDS` 교체 + `buy_signal_strength` 강도 함수 추가
 - [x] `composite_label()` fallback 문자열을 `SPLIT_LOGIC_IDS` 참조로 변경 (하드코딩 라벨 stale 방지)
 - [x] `docs/REPORT-FORMAT.md` 표시 로직명 갱신
+- [x] **리포트 라벨 stale 버그 수정** (PR #1) — 위 fallback 수정만으로는 부족했다.
+      `composite_label()`은 `load_weights()`가 비어 있을 때만 `SPLIT_LOGIC_IDS`를 쓰는데,
+      `data/backtest_results/composite_weights.json`에 `ma_divergence` 키가 그대로 남아 있어
+      **09-04 발행 리포트까지 eyebrow와 섹션 제목이 `ma_divergence`로 표시되고 있었다.**
+      실거래는 `SPLIT_LOGIC_IDS` 기반이라 정상이었고 라벨만 어긋난 것. 키를
+      `macd_trend_confirm`으로 교체 후 EOD 워크플로를 수동 실행해 실제 리포트에서
+      `macd_trend_confirm` 표시를 확인했다.
 
 ## 최근 완료 (08-14)
 
@@ -42,9 +49,10 @@
 | # | 항목 | 조치 |
 |---|------|------|
 | 1 | **기존 초과 보유** (momentum ~37%, STR ~40%) | 신규 매수는 차단됨 → 시그널 매도 또는 수동 trim 관찰 |
-| 2 | **macd_trend_confirm** 교체 직후 (09-06) | live 0건 재발 여부 2~4주 관찰 |
+| 2 | **macd_trend_confirm** 교체 직후 (09-06) | live 0건 재발 여부 2~4주 관찰. 09-06 시점 리포트는 macd_trend_confirm 라벨로 정상 표시됨 |
 | 3 | **Live** | 미개설 — Paper N일 축적 후 |
 | 4 | DST cron | `docs/reminders/2026-10-29-dst-cron.md` (10/29 전) |
+| 5 | 코드-데이터 이원화 | 로직 교체 시 `SPLIT_LOGIC_IDS`(코드)와 `composite_weights.json`(데이터) **둘 다** 봐야 한다. 09-06 버그의 근본 원인. `registry.py`에는 `ma_divergence` 함수가 아직 남아 있으나 split 경로가 안 타므로 무해 |
 
 ---
 
