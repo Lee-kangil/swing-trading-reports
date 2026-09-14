@@ -5,18 +5,27 @@
 
 ---
 
-## 30초 요약 (2026-09-06)
+## 30초 요약 (2026-09-12)
 
 | 항목 | 값 |
 |------|-----|
 | 모드 | Alpaca **Paper** |
-| 운영 | **3로직 split** — `macd_trend_confirm` / `momentum_absolute` / `short_term_reversal` |
+| 운영 | **3로직 split** — `macd_trend_confirm` / `momentum_absolute` / `trend_filter_signal` |
 | 슬롯 | `open+5`, `close-15` (ET) |
 | 한도 | 로직당 **30%**, 종목당 **6%**, 로직당 **5종**, 전체 **90%** |
 | cron | `strategy: **split**` (composite 폐기) |
 | 레포트 | https://lee-kangil.github.io/swing-trading-reports/us/latest_day.html |
 
 ---
+
+## 최근 완료 (09-12)
+
+- [x] **로직 교체**: `short_term_reversal` → `trend_filter_signal`
+      — 17개 로직 1년 in-sample/OOS 백테스트 결과, 라이브 3로직 중 `short_term_reversal`만
+        양쪽 구간 모두 음(-)의 ROI. 대체 후보 중 `trend_filter_signal`이 두 구간 모두
+        OOS 검증 양(+)인 유일한 후보로 확인되어 최우선 교체.
+      `SPLIT_LOGIC_IDS` 교체 + `buy_signal_strength`의 ROC20 강도 함수로 교체,
+        관련 테스트/문서 갱신.
 
 ## 최근 완료 (09-06)
 
